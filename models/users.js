@@ -27,14 +27,19 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     admin: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: false
+      defaultValue: 0
     },
     moderator: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: false
+      defaultValue: 0
+    },
+    onlyUser: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 0
     },
     email: {
       type: DataTypes.STRING,

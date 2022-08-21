@@ -1,10 +1,11 @@
 const express = require('express');
 const { sequelize, Users,Reziser } = require('../models');
 const jwt = require('jsonwebtoken');
-
+const cors = require('cors');
 require('dotenv').config();
 
 const route = express.Router();
+route.use(cors());
 route.use(express.json());
 route.use(express.urlencoded({ extended: true }));
 const id = 0;
@@ -57,7 +58,7 @@ route.post('/addR', (req, res) => {
    
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin || usr.moderator) {
+            if (usr.admin == 1 || usr.moderator == 1) {
                                                                                 // userId: req.user.userId
                 Reziser.create({ Ime: req.body.RName,Prezime:req.body.RLName,filmId: "0" ,DatumRodjenja:req.body.RBirth,MestoRodjenja:req.body.RTown})
                     .then( rows =>{
@@ -78,7 +79,7 @@ route.post('/modifyR', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin || usr.moderator) {
+            if (usr.admin  == 1 || usr.moderator  == 1) {
                 Reziser.findOne({where:{ Ime: req.body.RName}})
                     .then( rez => {
                         rez.Prezime = req.body.RLName;
@@ -99,12 +100,43 @@ route.post('/modifyR', (req, res) => {
         
 });
 
+route.post('/findR', (req, res) => {
+    console.log('RRR ' + req.body.Reziser)
+    Users.findOne({ where: { id: req.user.userId } })
+        .then( usr => {
+            //if (usr.admin  == 0 && usr.moderator  == 0) {
+                // Reziser.findOne({where:{ Ime: req.body.Reziser}})
+                //     .then( rez => {
+                //         // rez.Prezime = req.body.RLName;
+                //         // rez.DatumRodjenja = req.body.RBirth;
+                //         // rez.MestoRodjenja = req.body.RTown;
+                     
+                //         rez.json();
+                //             // .then( rows => res.json(rows) )
+                //             // .catch( err => res.status(500).json(err) );
+                //     } )
+                //     .catch( err => res.status(500).json(err) );
+
+                    Reziser.findOne({where:{ Ime: req.body.Reziser}})
+                    .then( rez => {res.json(rez);
+                        //console.log(rez);
+                    })
+                    .catch( err => res.status(500).json(err) );
+
+           // } else {
+               // res.status(403).json({ msg: "No permission"});
+            //}
+        })
+        .catch( err => res.status(500).json(err) );
+        
+});
+
 route.post('/deleteR', (req, res) => {
     
     console.log("stigaoooo")
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin || usr.moderator) {
+            if (usr.admin == 1 || usr.moderator == 1) {
                 Reziser.findOne({ where: { Ime: req.body.RName } })
                      .then( rez => {
 
@@ -123,42 +155,42 @@ route.post('/deleteR', (req, res) => {
         
 });
 
-route.get('/allR', (req, res) => {
+// route.get('/allR', (req, res) => {
     
-    Users.findOne({ where: { id: req.user.userId } })
-        .then( usr => {
-            if (usr.admin || usr.moderator) {
-                Reziser.findAll()
-                    .then( rows => res.json(rows) )
-                    .catch( err => res.status(500).json(err) );
+//     Users.findOne({ where: { id: req.user.userId } })
+//         .then( usr => {
+//             if (usr.admin || usr.moderator) {
+//                 Reziser.findAll()
+//                     .then( rows => res.json(rows) )
+//                     .catch( err => res.status(500).json(err) );
                 
-            } else {
-                res.status(403).json({ msg: "No permission"});
-            }
-        })
-        .catch( err => res.status(500).json(err) );
+//             } else {
+//                 res.status(403).json({ msg: "No permission"});
+//             }
+//         })
+//         .catch( err => res.status(500).json(err) );
         
-});
+// });
 
-route.post('/searchR', (req, res) => {
+// route.post('/searchR', (req, res) => {
     
-    Users.findOne({ where: { id: req.user.userId } })
-        .then( usr => {
-            if (usr.admin || usr.moderator) {
-                res.status(403).json({ msg: "No permission"});
+//     Users.findOne({ where: { id: req.user.userId } })
+//         .then( usr => {
+//             if (usr.admin || usr.moderator) {
+//                 res.status(403).json({ msg: "No permission"});
                 
 
-            } else {
+//             } else {
                
-                Reziser.findOne({ where: { Ime: req.body.reziser } })
-                .then( rez => {res.json(rez);
-                        console.log(res);
-                })
-                .catch( err => res.status(500).json(err) );
-            }
-        })
-        .catch( err => res.status(500).json(err) );
+//                 Reziser.findOne({ where: { Ime: req.body.reziser } })
+//                 .then( rez => {res.json(rez);
+//                         console.log(res);
+//                 })
+//                 .catch( err => res.status(500).json(err) );
+//             }
+//         })
+//         .catch( err => res.status(500).json(err) );
         
-});
+// });
 
 module.exports = route;

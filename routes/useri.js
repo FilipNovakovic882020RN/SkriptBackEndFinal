@@ -1,7 +1,7 @@
 const express = require('express');
 const { sequelize, Users } = require('../models');
-//const jwt = require('jsonwebtoken');
-//const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -25,24 +25,27 @@ const id = 0;
 
 //corsOptions
 
-// function authToken(req, res, next) {
-//     console.log(req.headers)
-//     const authHeader = req.headers['authorization'];
-//     console.log('Ovo je header ' + authHeader)
-//     const token = authHeader && authHeader.split(' ')[1];
+function authToken(req, res, next) {
+    console.log(req.headers)
+    const authHeader = req.headers['authorization'];
+    console.log('Ovo je header ' + authHeader)
+    const token = authHeader && authHeader.split(' ')[1];
   
-//     console.log('OVO JE TOKEN ' + token)
-//     if (token == null) return res.status(401).json({ msg: 'Not authenticated' });
-//     console.log('IDE DALJE')
-//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-//         console.log('USAO DALJE')
-//         if (err) return res.status(403).json({ msg: err });
-    
-//         req.user = user;
-    
-//         next();
-//     });
-// }
+    console.log('OVO JE TOKEN ' + token)
+    if(token == 2){
+        next();
+    }else {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+            console.log('USAO DALJEEE')
+            if (err) return res.status(403).json({ msg: err });
+        
+            req.user = user;
+            console.log('PROSAOO')
+            next();
+            console.log('PROSAOO 2')
+        });
+    }
+}
 
 // route.use(function (req, res, next) { 
 //     console.log("USAOOO u func AUTHTOKENA")
@@ -56,7 +59,7 @@ const id = 0;
 //  //return;
 // });
 
-//route.use(authToken);
+route.use(authToken);
 
 
 route.get('/users', (req, res) => {
@@ -75,7 +78,7 @@ console.log("USAO U MOD")
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
             console.log("NSAOAO USERA")
-            if (usr.admin) {
+            if (usr.admin == 1) {
                 console.log("ADMIN JE")
                  Users.findOne({where:{ name: req.body.oldName}})
                 //Users.findOne({where:{ name: 'admin2'}})
@@ -144,7 +147,7 @@ route.post('/delUser', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin) {
+            if (usr.admin == 1) {
                 Users.findOne({ where: { name: req.body.name }, include: ['rentfilms'] })
                      .then( rez => {
 
@@ -162,51 +165,47 @@ route.post('/delUser', (req, res) => {
         .catch( err => res.status(500).json(err) );
         
 });
-route.post('/match', (req, res) => {
-    Users.findOne({ where: { id: req.user.userId } })
-    .then( usr => {
-        if (usr.admin) {
-                Users.findOne({ where: { name: req.body.name } })
-                    .then( usr => {
-                        //console.log("radiii");
-                        //usr.password =  bcrypt.hashSync(req.body.newpassword, 10);
+// route.post('/match', (req, res) => {
+//     Users.findOne({ where: { id: req.user.userId } })
+//     .then( usr => {
+//         if (usr.admin == 1) {
+//                 Users.findOne({ where: { name: req.body.name } })
+//                     .then( usr => {
+//                         //console.log("radiii");
+//                         //usr.password =  bcrypt.hashSync(req.body.newpassword, 10);
                 
-                        usr.save()
-                            .then( rows => res.json(rows) )
-                            .catch( err => res.status(500).json(err) );
+//                         usr.save()
+//                             .then( rows => res.json(rows) )
+//                             .catch( err => res.status(500).json(err) );
 
-                        // console.log("usao je u check");    
-                          //  res.json(usr);
-                    })
-                    .catch( err => res.status(500).json(err) );
-             } else {
-                    res.status(403).json({ msg: "No permission"});
-            }
-         })
-         .catch( err => res.status(500).json(err) );
-});
+//                         // console.log("usao je u check");    
+//                           //  res.json(usr);
+//                     })
+//                     .catch( err => res.status(500).json(err) );
+//              } else {
+//                     res.status(403).json({ msg: "No permission"});
+//             }
+//          })
+//          .catch( err => res.status(500).json(err) );
+// });
 
 
 
 route.get('/check', (req, res) => {
 console.log("kakak");
-//console.log(req.user.userId);
-    Users.findOne({ where: { id: 8} }) //req.user.userId 
+    Users.findOne({ where: { id: req.user.userId } }) //req.user.userId 
         .then( usr => {
+                
                 console.log("usao je u check");    
-                console.log(usr.id); 
+                //console.log(usr.id); 
+                console.log('OVO JE ADMIN ' + usr.admin + ', OVO JE MODERATOR ' + usr.moderator + ', OVO JE USER ' + usr.onlyUser); 
                 
-                //const dat = {id: usr.id}
-                res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080'); 
-                res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); 
-                res.setHeader('Access-Control-Allow-Headers', 'Authorization,content-type');
-                res.setHeader('Content-Type', 'application/json');
-                //res.json(JSON.stringify(dat));
-                res.json(usr.id);
+                const dat = {privilageAdmin: usr.admin,privilageModerator: usr.moderator,privilageUser: usr.onlyUser}
+               
+                res.json(dat);
                 
-                //res.send(usr.id);
         })
-        .catch( err => res.status(500).json(err) );
+        .catch( err => /*res.status(500).json(err)*/ res.status(403).json({ msg: "No User"}) );
 });
 
 

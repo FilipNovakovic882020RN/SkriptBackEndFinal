@@ -1,10 +1,11 @@
 const express = require('express');
 const { sequelize, Users,Glumac } = require('../models');
 const jwt = require('jsonwebtoken');
-
+const cors = require('cors');
 require('dotenv').config();
 
 const route = express.Router();
+route.use(cors());
 route.use(express.json());
 route.use(express.urlencoded({ extended: true }));
 //const id = 0;
@@ -32,7 +33,7 @@ route.post('/addG', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin || usr.moderator) {
+            if (usr.admin == 1 || usr.moderator == 1) {
                 const imeGl = req.body.GName.split(',');
                 const prezimeGl = req.body.GLName.split(',');
                 const datumrodjenjaGl = req.body.GBirth.split(',');
@@ -60,7 +61,7 @@ route.post('/modifyG', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin || usr.moderator) {
+            if (usr.admin == 1 || usr.moderator == 1) {
                 Glumac.findOne({where:{ Ime: req.body.GName}})
                     .then( rez => {
                         rez.Prezime = req.body.GLName;
@@ -91,7 +92,7 @@ route.post('/deleteG', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin || usr.moderator) {
+            if (usr.admin == 1 || usr.moderator == 1) {
                 Glumac.findOne({ where: { Ime: req.body.GName } })
                      .then( rez => {
 
@@ -110,32 +111,73 @@ route.post('/deleteG', (req, res) => {
         
 });
 
-route.post('/searchG', (req, res) => {
-    
+route.post('/findG', (req, res) => {
+    console.log('GGG ' + req.body.Glumac)
+   
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-          
-            if (usr.admin || usr.moderator) {
-                res.status(403).json({ msg: "No permission"});
-                //console.log("Admin je");
+            //if (usr.admin  == 0 && usr.moderator  == 0) {
+                // Reziser.findOne({where:{ Ime: req.body.Reziser}})
+                //     .then( rez => {
+                //         // rez.Prezime = req.body.RLName;
+                //         // rez.DatumRodjenja = req.body.RBirth;
+                //         // rez.MestoRodjenja = req.body.RTown;
+                     
+                //         rez.json();
+                //             // .then( rows => res.json(rows) )
+                //             // .catch( err => res.status(500).json(err) );
+                //     } )
+                //     .catch( err => res.status(500).json(err) );
+                // const str= ''
+                // if(req.body.Glumac.include(",")){
+                //      str = req.body.Glumac.split(',')
+                    
+                // }
+                //     str.localeCompare(gl=> {
 
-            } else {
-                //const ime = req.body.glime;
-                //console.log(ime);
-                //console.log(ime[0]);//| req.body.glime.split(',');
-                        //findone              //req.body.glumac
-                // let b = 0;
-                   // for(b;b<1000000;b++){ 
-                       // console.log(ime[b]);      
-                        Glumac.findOne({ where: { Ime: req.body.glumac } })
-                        .then( rez =>  res.json(rez))
-                        .catch( err => res.status(500).json(err) );
-                   // }
-            }
+                //     })
+            
+                // })
+                    Glumac.findOne({where:{ Ime: req.body.Glumac}})
+                    .then( rez => {res.json(rez);
+                        //console.log(rez);
+                    })
+                    .catch( err => res.status(500).json(err) );
+
+           // } else {
+               // res.status(403).json({ msg: "No permission"});
+            //}
         })
         .catch( err => res.status(500).json(err) );
         
 });
+
+// route.post('/searchG', (req, res) => {
+    
+//     Users.findOne({ where: { id: req.user.userId } })
+//         .then( usr => {
+          
+//             if (usr.admin || usr.moderator) {
+//                 res.status(403).json({ msg: "No permission"});
+//                 //console.log("Admin je");
+
+//             } else {
+//                 //const ime = req.body.glime;
+//                 //console.log(ime);
+//                 //console.log(ime[0]);//| req.body.glime.split(',');
+//                         //findone              //req.body.glumac
+//                 // let b = 0;
+//                    // for(b;b<1000000;b++){ 
+//                        // console.log(ime[b]);      
+//                         Glumac.findOne({ where: { Ime: req.body.glumac } })
+//                         .then( rez =>  res.json(rez))
+//                         .catch( err => res.status(500).json(err) );
+//                    // }
+//             }
+//         })
+//         .catch( err => res.status(500).json(err) );
+        
+// });
 
 
 

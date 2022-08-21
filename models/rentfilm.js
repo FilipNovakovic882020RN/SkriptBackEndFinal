@@ -18,6 +18,30 @@ module.exports = (sequelize, DataTypes) => {
     Naziv:{
       type: DataTypes.STRING,
       allowNull: false
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    filmId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    reziserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    glumacId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE
+    },
+    updatedAt: {
+      allowNull: false,
+      type: DataTypes.DATE
     }
     
   }, {

@@ -1,33 +1,39 @@
 const express = require('express');
 const { sequelize, Users,Film,Rentfilm,Reziser } = require('../models');
-//const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
 
 const route = express.Router();
+route.use(cors());
 route.use(express.json());
 route.use(express.urlencoded({ extended: true }));
 //et ime;
 
-// function authToken(req, res, next) {
-//     console.log('SAD PROVERAVA TOKEN');
-//     const authHeader = req.headers['authorization'];
-//     console.log('Ovo je headerrr ' + authHeader)
-//     const token = authHeader && authHeader.split(' ')[1];
-//     console.log('OVO JE TOKENNN ' + token)
-//     if (token == null) return res.status(401).json({ msg: err });
-//     console.log('IDE DALJEEE')
-//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-//         console.log('USAO DALJEEE')
-//         if (err) return res.status(403).json({ msg: err });
+function authToken(req, res, next) {
+    console.log('SAD PROVERAVA TOKEN');
+    const authHeader = req.headers['authorization'];
+    console.log('Ovo je headerrr ' + authHeader)
+    const token = authHeader && authHeader.split(' ')[1];
+    console.log('OVO JE TOKENNN ' + token)
+    if (token == null) return res.status(401).json({ msg: err });
+    console.log('IDE DALJEEE')
+    if(token == 2){
+        next();
+    }else {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+            console.log('USAO DALJEEE')
+            if (err) return res.status(403).json({ msg: err });
+        
+            req.user = user;
+            console.log('PROSAOO')
+            next();
+            console.log('PROSAOO 2')
+        });
+    }
     
-//         req.user = user;
-//         console.log('PROSAOO')
-//         next();
-//         console.log('PROSAOO 2')
-//     });
-    
-// }
+}
 
 // route.use(function (req, res, next) { 
 //     console.log("USAOOO u func")
@@ -41,13 +47,13 @@ route.use(express.urlencoded({ extended: true }));
 //  //return;
 // });
 
-//route.use(authToken);
+route.use(authToken);
 
 route.post('/addfilm', (req, res) => {
     console.log('STIGAO');
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin || usr.moderator) {
+            if (usr.admin == 1 || usr.moderator == 1) {
                 
                 
         
@@ -71,13 +77,13 @@ route.post('/addfilm', (req, res) => {
                              
                              res.json(rows);
                                     } )
-                    //.catch( err => res.status(500).json(err) );
+                    .catch( err => res.status(500).json(err) );
                 
             } else {
-               // res.status(403).json({ msg: "No permission"});
+                res.status(403).json({ msg: "No permission"});
             }
         })
-        //.catch( err => res.status(500).json(err) );
+        .catch( err => res.status(500).json(err) );
         
 });
 
@@ -85,7 +91,7 @@ route.post('/modifyfilm', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin || usr.moderator) {
+            if (usr.admin == 1 || usr.moderator == 1) {
                 Film.findOne({where:{ Naziv: req.body.filmname}})
                     .then( rez => {
                         rez.Trajanje = req.body.duration;
@@ -109,7 +115,7 @@ route.post('/deleteF', (req, res) => {
     console.log('USAO U DELETE')
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin || usr.moderator) {
+            if (usr.admin == 1 || usr.moderator == 1) {
                 Film.findOne({ where: { Naziv: req.body.MName } })
                 .then( rez => {
                         //console.log(rez);
@@ -135,7 +141,7 @@ route.get('/allfilms', (req, res) => {
             //console.log('TU JE ISPRED')
             console.log('OVO SU FILMOVI PRI DOHVATANJU ' + JSON.stringify(rows)) ;
             console.log('OVO SU FILMOVI PRI DOHVATANJU ' + rows) ;
-            res.json(JSON.stringify( rows ) );
+            res.json(rows);
            
         })
             
@@ -155,16 +161,16 @@ route.get('/allF2', (req, res) => {
 });
 
 route.post('/searchF', (req, res) => {
-    console.log('USAO3')
-    console.log(req.body)
+    console.log('USAO3 u SEARCH')
+    //console.log(req.body)
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
            
-            // if (usr.admin || usr.moderator) {
-            //     res.status(403).json({ msg: "No permission"});
-            //     console.log("Admin je");
+            if (usr.admin == 1 || usr.moderator == 1) {
+                res.status(403).json({ msg: "No permission"});
+                console.log("Admin je");
 
-            // } else {
+            } else {
                 console.log('IMA PERMISION')
                 Film.findOne({ where: { Naziv: req.body.id } })
                 .then( rez =>{ //rez => { res.json(rez);
@@ -174,103 +180,108 @@ route.post('/searchF', (req, res) => {
                            // res.json({ msg: "Ne postoji tabelica"});
                       //  }else{
                       /// ime = res.Glumac;
-                            res.json(rez);
-                            console.log('PRONASAO FILM')
+                      console.log('PRONASAO FILM');
+                            res.json(JSON.stringify(rez));
+                            
                       //  }
                         
                 })
                 .catch( err => res.json({ msg: "This movie doesnt exists"})); //res.status(500).json(err) );
-           // }
-        })
-        .catch( err => res.status(500).json(err) );
-        
-});
-
-route.post('/searchDuration', (req, res) => {
-    
-    Users.findOne({ where: { id: req.user.userId } })
-        .then( usr => {
-           
-            if (usr.admin || usr.moderator) {
-                res.status(403).json({ msg: "No permission"});
-                //console.log("Admin je");
-
-            } else {
-              
-                Film.findAll({ where: { Trajanje: req.body.trajanje } })
-                .then( rez =>res.json(rez))
-                .catch( err => res.json({ msg: "This movie doesnt exists"})); //res.status(500).json(err) );
             }
         })
         .catch( err => res.status(500).json(err) );
         
 });
-route.post('/searchCount', (req, res) => {
-    
-    Users.findOne({ where: { id: req.user.userId } })
-        .then( usr => {
-           
-            if (usr.admin || usr.moderator) {
-                res.status(403).json({ msg: "No permission"});
-                //console.log("Admin je");
 
-            } else {
+// route.post('/searchDuration', (req, res) => {
+    
+//     Users.findOne({ where: { id: req.user.userId } })
+//         .then( usr => {
+           
+//             if (usr.admin || usr.moderator) {
+//                 res.status(403).json({ msg: "No permission"});
+//                 //console.log("Admin je");
+
+//             } else {
+              
+//                 Film.findAll({ where: { Trajanje: req.body.trajanje } })
+//                 .then( rez =>res.json(rez))
+//                 .catch( err => res.json({ msg: "This movie doesnt exists"})); //res.status(500).json(err) );
+//             }
+//         })
+//         .catch( err => res.status(500).json(err) );
+        
+// });
+// route.post('/searchCount', (req, res) => {
+    
+//     Users.findOne({ where: { id: req.user.userId } })
+//         .then( usr => {
+           
+//             if (usr.admin || usr.moderator) {
+//                 res.status(403).json({ msg: "No permission"});
+//                 //console.log("Admin je");
+
+//             } else {
                 
-                Film.findAll({ where: { Count: req.body.count} })
-                .then( rez =>{res.json(rez);
-                    //console.log(rez);
-                })
-                .catch( err => res.json({ msg: "This movie doesnt exists"})); //res.status(500).json(err) );
+//                 Film.findAll({ where: { Count: req.body.count} })
+//                 .then( rez =>{res.json(rez);
+//                     //console.log(rez);
+//                 })
+//                 .catch( err => res.json({ msg: "This movie doesnt exists"})); //res.status(500).json(err) );
               
-            }
-        })
-        .catch( err => res.status(500).json(err) );
+//             }
+//         })
+//         .catch( err => res.status(500).json(err) );
         
-});
+// });
 
 
 
 
 route.post('/rentF', (req, res) => {
-    
+    console.log("LALALAL")
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-          
-            if (usr.admin || usr.moderator) {
+            console.log(usr.admin)
+            console.log(usr.moderator)
+            if (usr.admin == 1 || usr.moderator == 1) {
                 res.status(403).json({ msg: "No permission"});
                // console.log("Admin je");
 
             } else {
                 
-                Film.findOne({ where: { Naziv: req.body.filmName } })
+                Film.findOne({ where: { Naziv: req.body.Naziv } })
                 .then( rez =>{
                       
                       
                         if(rez.Count > 0){
-                           // console.log(rez.Count);
-                            res.json(rez);
+                            console.log("RADIIII");
+                            res.json(JSON.stringify(rez));
                         }else{
                             res.json({ msg: "There is no aveaible copies, they are all rented"})
                         }
                                
                 })
                 .catch( err => res.json({ msg: "This movie doesnt exists"})); 
-            }
-        })
+           }
+       })
         .catch( err => res.status(500).json(err) );
         
 });
 
 route.post('/RUFilm', (req, res) => {
+    console.log('usaoooaa')
+    console.log('Naziv ' + req.body.Naziv + ' Count ' + req.body.Count)
 
-                Film.findOne({where:{ Naziv: req.body.filmName}})
+                Film.findOne({where:{ Naziv: req.body.Naziv}})
                     .then( rez => { 
-        
-                        rez.Count = req.body.count;
+                        console.log('cacacaca')
+                        rez.Count = req.body.Count;
                      
                         rez.save()
-                            .then( rows => res.json(rows) )
-                            .catch( err => res.status(500).json(err) );
+                            //.then( rows => res.json(rows) )
+                           // catch( err => res.status(500).json(err) );
+                           console.log('kakaka')
                     } )
                     .catch( err => res.status(500).json(err) );
 
@@ -279,15 +290,18 @@ route.post('/RUFilm', (req, res) => {
 });
 route.post('/createRF', (req, res) => {
 
+    console.log('REZISER ' + req.body.IDR)
+    console.log('GLUMAC ' + req.body.IDG)
+
     Users.findOne({ where: { id: req.user.userId } })
     .then( usr => {
       
-        if (usr.admin || usr.moderator) {
+        if (usr.admin == 1 || usr.moderator == 1) {
             res.status(403).json({ msg: "No permission"});
            
 
         } else {
-            Rentfilm.create({ Naziv: req.body.filmName,userId: req.user.userId,filmId:"",reziserId:"",glumacId:""})
+            Rentfilm.create({ Naziv: req.body.Naziv,userId: req.user.userId,filmId:"",reziserId: req.body.IDR,glumacId: req.body.IDG})
             .then( rez =>res.json(rez))
             .catch( err => res.status(500).json(err) );
         }
@@ -307,11 +321,11 @@ route.post('/deleteRF', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin || usr.moderator) {
+            if (usr.admin == 1 || usr.moderator == 1) {
                 res.status(403).json({ msg: "No permission"});
             
             } else {     
-                Rentfilm.findOne({ where: { Naziv: req.body.filmName,userId: req.user.userId } })
+                Rentfilm.findOne({ where: { Naziv: req.body.Naziv,userId: req.user.userId } })
                      .then( rez => {
 
                             rez.destroy()
@@ -326,10 +340,10 @@ route.post('/deleteRF', (req, res) => {
 });
 route.post('/recoveryF', (req, res) => {
  
-                Film.findOne({where:{ Naziv: req.body.filmName}})
+                Film.findOne({where:{ Naziv: req.body.Naziv}})
                     .then( rez => { 
         
-                        rez.Count = req.body.count;
+                        rez.Count = req.body.Count;
                      
                         rez.save()
                             .then( rows => res.json(rows) )
@@ -343,7 +357,7 @@ route.post('/recoveryF', (req, res) => {
 
 route.post('/recoveryfindF', (req, res) => {
    
-                Film.findOne({where:{ Naziv: req.body.filmName}})
+                Film.findOne({where:{ Naziv: req.body.Naziv}})
                     .then( rez => res.json(rez))
                     .catch( err => res.status(500).json(err) );
 
@@ -352,7 +366,7 @@ route.post('/recoveryfindF', (req, res) => {
 });
 route.post('/firstFindF', (req, res) => {
    
-    Rentfilm.findOne({where:{ Naziv: req.body.filmName}})
+    Rentfilm.findOne({where:{ Naziv: req.body.Naziv}})
         .then( rez => {res.json(rez);
             //console.log(rez);
         })
@@ -369,7 +383,7 @@ route.get('/allRF', (req, res) => {
     Users.findOne({ where: { id: req.user.userId } })
     .then( usr => {
      
-        if (usr.admin) {
+        if (usr.admin == 1) {
             res.status(403).json({ msg: "No permission"});
            
 
