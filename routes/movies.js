@@ -53,7 +53,7 @@ route.post('/addfilm', (req, res) => {
     console.log('STIGAO');
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin == 1 || usr.moderator == 1) {
+            if (usr.admin == 'true' || usr.moderator == 'true') {
                 
                 
         
@@ -91,7 +91,7 @@ route.post('/modifyfilm', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin == 1 || usr.moderator == 1) {
+            if (usr.admin == 'true' || usr.moderator == 'true') {
                 Film.findOne({where:{ Naziv: req.body.filmname}})
                     .then( rez => {
                         rez.Trajanje = req.body.duration;
@@ -115,7 +115,7 @@ route.post('/deleteF', (req, res) => {
     console.log('USAO U DELETE')
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin == 1 || usr.moderator == 1) {
+            if (usr.admin == 'true' || usr.moderator == 'true') {
                 Film.findOne({ where: { Naziv: req.body.MName } })
                 .then( rez => {
                         //console.log(rez);
@@ -166,7 +166,7 @@ route.post('/searchF', (req, res) => {
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
            
-            if (usr.admin == 1 || usr.moderator == 1) {
+            if (usr.admin == 'true' || usr.moderator == 'true') {
                 res.status(403).json({ msg: "No permission"});
                 console.log("Admin je");
 
@@ -244,7 +244,7 @@ route.post('/rentF', (req, res) => {
         .then( usr => {
             console.log(usr.admin)
             console.log(usr.moderator)
-            if (usr.admin == 1 || usr.moderator == 1) {
+            if (usr.admin == 'true' || usr.moderator == 'true') {
                 res.status(403).json({ msg: "No permission"});
                // console.log("Admin je");
 
@@ -296,7 +296,7 @@ route.post('/createRF', (req, res) => {
     Users.findOne({ where: { id: req.user.userId } })
     .then( usr => {
       
-        if (usr.admin == 1 || usr.moderator == 1) {
+        if (usr.admin == 'true' || usr.moderator == 'true') {
             res.status(403).json({ msg: "No permission"});
            
 
@@ -321,7 +321,7 @@ route.post('/deleteRF', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin == 1 || usr.moderator == 1) {
+            if (usr.admin == 'true' || usr.moderator == 'true') {
                 res.status(403).json({ msg: "No permission"});
             
             } else {     
@@ -383,7 +383,7 @@ route.get('/allRF', (req, res) => {
     Users.findOne({ where: { id: req.user.userId } })
     .then( usr => {
      
-        if (usr.admin == 1) {
+        if (usr.admin == 'true') {
             res.status(403).json({ msg: "No permission"});
            
 

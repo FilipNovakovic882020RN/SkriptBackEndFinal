@@ -33,7 +33,7 @@ route.post('/addG', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin == 1 || usr.moderator == 1) {
+            if (usr.admin == 'true' || usr.moderator == 'true') {
                 const imeGl = req.body.GName.split(',');
                 const prezimeGl = req.body.GLName.split(',');
                 const datumrodjenjaGl = req.body.GBirth.split(',');
@@ -61,7 +61,7 @@ route.post('/modifyG', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin == 1 || usr.moderator == 1) {
+            if (usr.admin == 'true' || usr.moderator == 'true') {
                 Glumac.findOne({where:{ Ime: req.body.GName}})
                     .then( rez => {
                         rez.Prezime = req.body.GLName;
@@ -92,7 +92,7 @@ route.post('/deleteG', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin == 1 || usr.moderator == 1) {
+            if (usr.admin == 'true' || usr.moderator == 'true') {
                 Glumac.findOne({ where: { Ime: req.body.GName } })
                      .then( rez => {
 

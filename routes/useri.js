@@ -78,7 +78,7 @@ console.log("USAO U MOD")
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
             console.log("NSAOAO USERA")
-            if (usr.admin == 1) {
+            if (usr.admin == 'true') {
                 console.log("ADMIN JE")
                  Users.findOne({where:{ name: req.body.oldName}})
                 //Users.findOne({where:{ name: 'admin2'}})
@@ -147,7 +147,7 @@ route.post('/delUser', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin == 1) {
+            if (usr.admin == 'true') {
                 Users.findOne({ where: { name: req.body.name }, include: ['rentfilms'] })
                      .then( rez => {
 

@@ -58,7 +58,7 @@ route.post('/addR', (req, res) => {
    
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin == 1 || usr.moderator == 1) {
+            if (usr.admin == 'true' || usr.moderator == 'true') {
                                                                                 // userId: req.user.userId
                 Reziser.create({ Ime: req.body.RName,Prezime:req.body.RLName,filmId: "0" ,DatumRodjenja:req.body.RBirth,MestoRodjenja:req.body.RTown})
                     .then( rows =>{
@@ -79,7 +79,7 @@ route.post('/modifyR', (req, res) => {
     
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin  == 1 || usr.moderator  == 1) {
+            if (usr.admin  == 'true' || usr.moderator  == 'true') {
                 Reziser.findOne({where:{ Ime: req.body.RName}})
                     .then( rez => {
                         rez.Prezime = req.body.RLName;
@@ -136,7 +136,7 @@ route.post('/deleteR', (req, res) => {
     console.log("stigaoooo")
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
-            if (usr.admin == 1 || usr.moderator == 1) {
+            if (usr.admin == 'true' || usr.moderator == 'true') {
                 Reziser.findOne({ where: { Ime: req.body.RName } })
                      .then( rez => {
 
