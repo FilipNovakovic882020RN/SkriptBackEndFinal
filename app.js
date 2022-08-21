@@ -11,7 +11,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-
+console.log("LALA")
 // var corsOptions = {
 //     //origin: ['http://localhost:8080','http://127.0.0.1:8080'],
 //    origin: '*',
