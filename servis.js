@@ -108,7 +108,7 @@ app.get('/check', (req, res) => {
 
     app.use(staticMdl);
 
-    app.listen({ port: 8088 }, async () => {
+    app.listen({ port: process.env.PORT || 8088 }, async () => {
         await sequelize.authenticate();
     });
 
