@@ -6,6 +6,7 @@ const actr = require('./routes/glumci');
 const rez = require('./routes/reziseri');
 const path = require('path');
 const cors = require('cors');
+
 //const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
