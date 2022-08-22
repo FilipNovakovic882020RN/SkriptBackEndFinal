@@ -1,6 +1,6 @@
 const express = require('express');
 const { sequelize, Users } = require('./models');
-//const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const usr = require('./routes/useri');
 const mov = require('./routes/movies');
@@ -10,7 +10,7 @@ const path = require('path');
 const history = require('connect-history-api-fallback');
 const cors = require('cors');
 require('dotenv').config();
-const bcrypt = require('bcryptjs')
+
 
 const app = express();
 

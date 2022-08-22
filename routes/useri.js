@@ -1,7 +1,7 @@
 const express = require('express');
 const { sequelize, Users } = require('../models');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const cors = require('cors');
 require('dotenv').config();
 
