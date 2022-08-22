@@ -116,6 +116,7 @@ route.post('/findG', (req, res) => {
    
     Users.findOne({ where: { id: req.user.userId } })
         .then( usr => {
+            comnsole.log('RADIII');
             //if (usr.admin  == 0 && usr.moderator  == 0) {
                 // Reziser.findOne({where:{ Ime: req.body.Reziser}})
                 //     .then( rez => {
